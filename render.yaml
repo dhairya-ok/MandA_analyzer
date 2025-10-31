@@ -18,6 +18,30 @@ services:
           type: redis
           name: ma-deals-redis
           property: connectionString
+
+  - type: web
+    name: ma-deals-frontend
+    env: node
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm run preview
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 18.0.0
+      - key: VITE_API_URL
+        value: https://ma-deals-backend.onrender.com
+
+  - type: redis
+    name: ma-deals-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  - type: postgres
+    name: ma-deals-postgres
+    plan: free
+    ipAllowList: []
       - key: CORS_ORIGINS
         fromService:
           type: web
