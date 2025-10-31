@@ -1,0 +1,26 @@
+# Cursor Rules for M&A Deal System
+
+## Conventions
+- Use snake_case for Python, camelCase for TypeScript.
+- SQLAlchemy models live in `backend/models/models.py`.
+- FastAPI app entrypoint: `backend/api/main.py` as `app`.
+- Prefer dependency-injected DB sessions via FastAPI middleware.
+- All API routes are prefixed with `/api` except `/health`.
+- Financial modeling functions should accept/return typed dataclasses or dicts with explicit keys.
+
+## Data Modeling
+- Tables: `companies`, `financials`, `deal_pairs`, `valuations`.
+- Use UUID primary keys where possible; tickers are unique for companies.
+- Store normalized financials with `statement_type` and `period` fields.
+
+## Documentation
+- Every endpoint returns a top-level `meta` and `data` object.
+- Include `assumptions` and `provenance` fields in valuation outputs.
+
+## Testing
+- Unit tests for core valuation math.
+- Integration tests mock API calls for ingestion.
+
+## Code Style
+- Favor clear, descriptive variable names.
+- Avoid unnecessary try/except; validate inputs with Pydantic models.
