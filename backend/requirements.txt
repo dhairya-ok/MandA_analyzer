@@ -5,7 +5,7 @@ psycopg2-binary==2.9.9
 typing-extensions>=4.9.0
 alembic==1.13.2
 pandas==2.2.3
-numpy==2.1.2
+numpy==1.26.4
 yfinance==0.2.44
 requests==2.32.3
 redis==5.1.1

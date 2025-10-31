@@ -22,14 +22,14 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 from sqlalchemy.orm import Session
-from ..logger import setup_logger
+from backend.logger import setup_logger
 
 logger = setup_logger(__name__)
 from datetime import datetime, timedelta
 import asyncio
 from collections import defaultdict
-from ..db import get_db, init_db, SessionLocal
-from .. import ingest as ingest_module
+from backend.db import get_db, init_db, SessionLocal
+from backend import ingest as ingest_module
 import json
 from ..pairing import generate_top_pairs
 
