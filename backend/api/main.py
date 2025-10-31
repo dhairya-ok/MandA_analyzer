@@ -5,7 +5,7 @@ from starlette.routing import Route
 from starlette.requests import Request
 from datetime import datetime
 import numpy as np
-from backend.models.models import Company, Financial, DealPair, Valuation
+from ..models.models import Company, Financial, DealPair, Valuation
 from backend.pdf_generator import generate_deal_brief
 from backend.valuation import (
     calculate_base_fcf,
