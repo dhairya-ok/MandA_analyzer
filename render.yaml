@@ -6,6 +6,7 @@ services:
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn api.main:app --host 0.0.0.0 --port $PORT
     autoDeploy: true
+    healthCheckPath: /health
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
@@ -18,19 +19,30 @@ services:
           type: redis
           name: ma-deals-redis
           property: connectionString
+      - key: CORS_ORIGINS
+        fromService:
+          type: web
+          name: ma-deals-frontend
+          property: url
+    scaling:
+      minInstances: 1
+      maxInstances: 1
 
   - type: web
     name: ma-deals-frontend
     env: node
     plan: free
-    buildCommand: cd frontend && npm install && npm run build
-    startCommand: cd frontend && npm run preview
+    buildCommand: cd frontend && yarn install && yarn build
+    startCommand: cd frontend && npx serve -s dist -l $PORT
     autoDeploy: true
     envVars:
       - key: NODE_VERSION
         value: 18.0.0
-      - key: VITE_API_URL
-        value: https://ma-deals-backend.onrender.com
+      - key: VITE_API_BASE_URL
+        fromService:
+          name: ma-deals-backend
+          type: web
+          property: url
 
   - type: redis
     name: ma-deals-redis
@@ -38,10 +50,9 @@ services:
     maxmemoryPolicy: noeviction
     ipAllowList: []
 
-  - type: postgres
-    name: ma-deals-postgres
+databases:
+  - name: ma-deals-postgres
     plan: free
-    ipAllowList: []
       - key: CORS_ORIGINS
         fromService:
           type: web
