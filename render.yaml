@@ -20,10 +20,7 @@ services:
           name: ma-deals-redis
           property: connectionString
       - key: CORS_ORIGINS
-        fromService:
-          type: web
-          name: ma-deals-frontend
-          property: url
+        value: "*"
     scaling:
       minInstances: 1
       maxInstances: 1
