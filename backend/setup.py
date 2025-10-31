@@ -1,0 +1,29 @@
+from setuptools import setup, find_packages
+
+setup(
+    name="backend",
+    version="0.1",
+    packages=find_packages(),
+    install_requires=[
+        "uvicorn",
+        "starlette",
+        "sqlalchemy",
+        "psycopg2-binary",
+        "typing-extensions",
+        "alembic",
+        "pandas",
+        "numpy",
+        "yfinance",
+        "requests",
+        "redis",
+        "lightgbm",
+        "reportlab",
+        "python-dotenv",
+        "sentry-sdk",
+        "prometheus-client",
+        "structlog",
+        "python-json-logger",
+        "tenacity",
+        "cachetools",
+    ],
+)
