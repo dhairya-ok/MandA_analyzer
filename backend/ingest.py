@@ -64,7 +64,7 @@ def _create_mock_financial(company_id: int, stmt_type: str, year: int) -> Financ
             "Capital Expenditure": -5e8
         }
     }
-    
+
     return Financial(
         company_id=company_id,
         statement_type=stmt_type,
@@ -73,6 +73,7 @@ def _create_mock_financial(company_id: int, stmt_type: str, year: int) -> Financ
         quarter=None,
         data={"values": mock_data[stmt_type]}
     )
+
 
 def ingest_universe(limit: int = 200, pause: float = 2.0, use_mock: bool = True) -> Dict[str, Any]:
     """Ingest a universe of tickers into the backend DB with rate limiting.
@@ -97,7 +98,7 @@ def ingest_universe(limit: int = 200, pause: float = 2.0, use_mock: bool = True)
             break
         try:
             logger.info("Processing %s (%d/%d)", ticker, i, limit)
-            
+
             if use_mock:
                 name, sector, industry = mock_data.get(ticker, (f"{ticker} Inc.", "Technology", "Software"))
                 company = Company(
@@ -115,21 +116,20 @@ def ingest_universe(limit: int = 200, pause: float = 2.0, use_mock: bool = True)
             else:
                 t = yf.Ticker(ticker)
                 info = t.info or {}
-
                 company = Company(
                     ticker=str(ticker),
                     name=info.get("longName") or info.get("shortName") or str(ticker),
                     sector=info.get("sector"),
                     market_cap=info.get("marketCap"),
                 )
-            
+
             session.add(company)
             session.commit()
             session.refresh(company)
 
             if use_mock:
                 # Create mock financial statements for the last 3 years
-                current_year = 2025  # You can adjust this as needed
+                current_year = 2025  # Adjust as needed
                 for year in range(current_year - 2, current_year + 1):
                     for stmt_type in ["income", "balance", "cashflow"]:
                         fin = _create_mock_financial(company.id, stmt_type, year)
@@ -160,13 +160,12 @@ def ingest_universe(limit: int = 200, pause: float = 2.0, use_mock: bool = True)
                             )
                             session.add(fin)
                         session.commit()
-                except Exception as e:
-                    # Non-fatal for single statement
-                    logger.warning("Failed to ingest statement %s for %s: %s", stmt_type, ticker, e)
+                    except Exception as e:
+                        # Non-fatal for single statement
+                        logger.warning("Failed to ingest statement %s for %s: %s", stmt_type, ticker, e)
 
             summary["processed"] += 1
-            # polite pause to reduce rate pressure on free services
-            time.sleep(pause)
+            time.sleep(pause)  # polite pause
         except Exception as e:
             logger.exception("Error ingesting %s", ticker)
             summary["errors"].append({"ticker": ticker, "error": str(e)})
@@ -191,17 +190,30 @@ def seed_sample_universe() -> Dict[str, Any]:
     created = 0
     for s in sample:
         try:
-            c = Company(ticker=s["ticker"], name=s["name"], sector=s.get("sector"), market_cap=s.get("market_cap"))
+            c = Company(
+                ticker=s["ticker"],
+                name=s["name"],
+                sector=s.get("sector"),
+                market_cap=s.get("market_cap"),
+            )
             session.add(c)
             session.commit()
             session.refresh(c)
-            # add a dummy income financial with revenue history
-            fin = Financial(company_id=c.id, statement_type="income", period="annual", year=2022, quarter=None, data={"values": {"Total Revenue": 1000.0 if s["ticker"].startswith("ACQ") else 100.0}})
+
+            fin = Financial(
+                company_id=c.id,
+                statement_type="income",
+                period="annual",
+                year=2022,
+                quarter=None,
+                data={"values": {"Total Revenue": 1000.0 if s["ticker"].startswith("ACQ") else 100.0}},
+            )
             session.add(fin)
             session.commit()
             created += 1
         except Exception as e:
             logger.warning("Failed to create sample company %s: %s", s.get("ticker"), e)
+
     session.close()
     return {"created": created}
 
@@ -213,8 +225,10 @@ if __name__ == "__main__":
     parser.add_argument("--limit", type=int, default=50, help="Number of tickers to ingest")
     parser.add_argument("--seed", action="store_true", help="Seed a small sample universe instead of fetching from internet")
     args = parser.parse_args()
+
     if args.seed:
         result = seed_sample_universe()
     else:
         result = ingest_universe(limit=args.limit)
+
     print(result)
